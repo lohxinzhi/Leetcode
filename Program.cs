@@ -1,149 +1,208 @@
-﻿using System;
+using System;
+using System.ComponentModel;
+using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace SortedArray
 {
     class Program{
         static void Main(string[] args)
         {
+            // int x = 2147483647;
+            // int x =-2147483648;
+            // System.Console.WriteLine(Reverse(x));
 
-            int[] a = {1,2,5,6,7}; 
-            int[] b = {3,4,8,9,10};            
+            // int x = 2549;
+            // System.Console.WriteLine(IntToRoman(x));
 
-            System.Console.WriteLine($"median = {FindMedianSortedArrays(a,b)}");
+            // int[] nums = {6,1,7,4,6,3,4,2,1,6,3,7,1,3,7,4};
+            // int[] nums = {43,16,45,89,45,-2147483648,45,2147483646,-2147483647,-2147483648,43,2147483647,-2147483646,-2147483648,89,-2147483646,89,-2147483646,-2147483647,2147483646,-2147483647,16,16,2147483646,43};
+            // System.Console.WriteLine(SingleNumber2(nums));
+
+            // int[] nums = {1,1,2,5,4,3,2,1,4};
+            int[] nums = {2,3,1,1,4};
+            int[] y = {7,0,9,6,9,6,1,7,9,0,1,2,9,0,3};
+            // System.Console.WriteLine(Jump(y));
+            // System.Console.WriteLine(Jump(y));
+            int[] w = {9,9,9,9};
+            foreach(int i in PlusOne(w)){
+                System.Console.WriteLine(i);
+            }
+
 
         }
         
-        static double FindMedianSortedArrays(int[] nums1, int[] nums2) {
-
-
-            int l1 = nums1.Length;
-            int l2 = nums2.Length;
-            if (l1 == 0){
-                if (l2%2 == 0){
-                    return (float)(nums2[l2/2]+nums2[l2/2-1])/2;
+        static int Reverse(int x){
+            int result = 0;
+            while (x!=0){
+                if (result > 0){
+                    if (result > 214748364 ||(result == 214748364 && x%10 >= 7)){
+                        return 0;             
+                    }
                 }
-                else{
-                    return nums2[l2/2];
+                else if (result < 0){
+                    if (result < -214748364 ||(result == -214748364 && x%10 < -7)){
+                        return 0;
+                    }
                 }
+                result *=10;
+                result += x % 10 ;
+                x /= 10;
             }
-            if (l2 == 0){
-                if (l1%2 == 0){
-                    return (float)(nums1[l1/2]+nums1[l1/2-1])/2;
-                }
-                else{
-                    return nums1[l1/2];
-                }
-            }   
-            int total = l1 + l2;
-            int[] longer = l1>=l2 ? nums1 :nums2;
-            int[] shorter = l1>=l2 ? nums2 :nums1;
-
-            int[] mainWindow = {0, (total-1)/2}; // 0 to total median index
-            int[] subWindow = {0, shorter.Length-1};
-            int j = FindInsertIndex(longer,shorter, (total-1)/2, subWindow); // number of elements to remove later - 1
-            if (j>=0){
-                int mainMiddle,subMiddle;
-                int shift = 0;
-                mainWindow[0] = (total-1)/2 - j;
-                subWindow[1] = j;                
-                while (mainWindow[0] != mainWindow[1]){
-                    if ((mainWindow[1]-mainWindow[0]+1) % 2 == 0){ // if even
-                        mainMiddle = (mainWindow[1]+mainWindow[0])/2+1;
-                        subMiddle = (subWindow[1]+subWindow[0])/2+1;
-                        shift = 0;
-
-                    }
-                    else{ // if odd
-                        mainMiddle = (mainWindow[1]+mainWindow[0])/2;
-                        subMiddle = (subWindow[1]+subWindow[0])/2;
-                        shift = 1;
-                    }    
-                    // compare values
-                    if (longer[mainMiddle] > shorter[subMiddle]){
-                        mainWindow[1] = mainMiddle - 1;
-                        subWindow[0] = subMiddle + shift;
-                    }
-                    else if (longer[mainMiddle] < shorter[subMiddle]){
-                        mainWindow[0] = mainMiddle + shift;
-                        subWindow[1] = subMiddle - 1;
-                    }
-                    else{   // equals 
-                        return longer[mainMiddle];
-                    }                        
-
-                }
-                if (total % 2 == 0){ // if even number of elements in final array
-                    if (longer[mainWindow[0]] < shorter[subWindow[0]]){
-                        return (double)(Math.Max(longer[mainWindow[0]], subWindow[0] > 0 ? shorter[subWindow[0]-1] : mainWindow[0]) + Math.Min( mainWindow[0]+1 < longer.Length ? longer[mainWindow[0]+1] : shorter[subWindow[0]], shorter[subWindow[0]])) /2;
-                    } 
-                    else{
-                        return (double)(Math.Max(shorter[subWindow[0]], mainWindow[0] > 0 ? longer[mainWindow[0]-1] : subWindow[0]) + Math.Min(subWindow[0]+1 < shorter.Length ? shorter[subWindow[0]+1] : longer[mainWindow[0]] , longer[mainWindow[0]])) /2; // error
-                    }
-                }
-                else{
-                    if (longer[mainWindow[0]] < shorter[subWindow[0]]){
-                        return Math.Max(longer[mainWindow[0]], subWindow[0] > 0 ? shorter[subWindow[0]-1] : longer[mainWindow[0]]);
-                    }
-                    else{
-                        return Math.Max(shorter[subWindow[0]], mainWindow[0] > 0 ? longer[mainWindow[0]-1] : shorter[subWindow[0]]);
-                    }
-                }
-                
-            }
-            else{
-                if (total%2==0){
-                    int upper;
-                    int lower = longer[(total-1)/2];
-                    if (longer.Length-1 < (total-1)/2+1){
-                        upper = shorter[0];
-                    }
-                    else{
-                        upper = Math.Min(longer[((total-1)/2)+1],shorter[0]);
-                    }
-                    return (double)(lower+upper)/2;
-                }
-                else{
-                    return longer[(total-1)/2];
-                }
-            }
+            return result;
         }
 
-        static int FindInsertIndex(int[]longer, int[]shorter, int i, int[] sub_Window){
-            int[] subWindow = {sub_Window[0], sub_Window[1]};
-            int j = (subWindow[1]+subWindow[0])/2;
-            while (true){
-                if (subWindow[0] == subWindow[1]){
-                    if (shorter[subWindow[0]] < longer[i]){
-                        return subWindow[0];
+        static string IntToRoman(int num){
+            string roman = "MDCLXVI";
+            int[] pos = {1000,500,100,50,10,5,1};
+            string result = "";
+            for (int i = 0; i<pos.Count(); i+=2){
+                int temp = num/pos[i];
+                switch (temp){
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:{
+                        for(int j = 0; j<temp; j++){
+                            result += roman[i];
+                        }
+                        break;
                     }
-                    else {
-                        return -1;
+                    case 4:{
+                        result = result + roman[i] + roman[i-1];
+                        break;
                     }
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:{
+                        int remain = temp - pos[i-1]/pos[i];
+                        result += roman[i-1];
+                        for (int j=0; j<remain; j++){
+                            result += roman[i];
+                        }
+                        break;
+                    }
+                    case 9:
+                        result = result + roman[i] + roman[i-2];
+                        break;
+                    default:
+                        break;
                 }
-                if((shorter[j] < longer[i]) && (shorter[j+1] < longer[i])){
-                    subWindow[0] = j+1;
-                }
-                else if(shorter[j] > longer[i]){
-                    subWindow[1] = j > 0 ? j-1 : 0;
+                num%=pos[i];
+            }
+            return result;
+        }
+    
+        static int SingleNumber( int[] nums){
+
+            HashSet<int> appeared = new HashSet<int>();
+
+            foreach(int num in nums){
+                if (appeared.Contains(num)){
+                    appeared.Remove(num);
                 }
                 else{
-                    return j;
+                    appeared.Add(num);
                 }
-                j = (subWindow[0]+subWindow[1])/2;
-                if((j == shorter.Length-1) || (j == 0 && subWindow[0] == subWindow[1])){
-                    if (longer[i] < shorter[j]){
-                        return -1;
-                    }
-                    else{
-                        return j;
-                    }
-                }
-
             }
 
+            return appeared.ElementAt(0);
         }
 
-        
+        static int SingleNumber3( int[] nums){
+
+            HashSet<int> appeared = new HashSet<int>();
+            HashSet<int> appeared2 = new HashSet<int>();
+
+            foreach(int num in nums){
+                if (!appeared.Add(num)){ // if alr exist
+                    if (!appeared2.Add(num)){
+                        appeared.Remove(num);
+                        appeared2.Remove(num);
+                    }
+                }
+            }
+            return appeared.ElementAt(0);
+
+        }
+    
+        static int SingleNumber2 (int[] nums){
+            int result = 0;
+            for (int i=0; i<32; i++){
+                int sum = 0;
+                foreach(int num in nums){
+                    sum += num >> i & 1; // sum of the number of rep in that bit position
+                }
+                result |= sum%3 << i;    // if never repeat 3 times, the value at that bit is 1
+            }
+            return result;
+        }
+
+        static int MinimumTotal(IList<IList<int>> triangle) {
+            for(int i = triangle.Count-2; i>=0; i--){
+                for (int j = 0; j < triangle[i].Count; j++){
+                    triangle[i][j] += triangle[i+1][j] < triangle[i+1][j+1] ? triangle[i+1][j] : triangle[i+1][j+1];
+                }
+            }
+            return triangle[0][0];
+        }
+
+        static bool CanJump(int[] nums) {
+            int zero_i = -1;
+            for(int i = nums.Count()-2; i>=0; i--){
+                if (nums[i] == 0){
+                    zero_i = Math.Max(zero_i,i);
+                }
+                if (zero_i >= 0){
+                    if ((zero_i-i < nums[i])){
+                        zero_i = -1;
+                    }
+                }
+            }
+            return zero_i < 0;
+        }
+
+        static int Jump(int[] nums){
+            int result = 0;
+            int current1 = 0;
+            int current2 = 0;
+            int length = nums.Length;
+
+
+            for(int i = 0; i < length-1 ; i++ ){
+                if (nums[i] > current1){
+                    current2 = Math.Max(current2,nums[i]);
+                }                
+
+                if(current1 <= 0){
+                    current1 = current2;
+                    result++;
+                }
+                current1--;
+                current2--;
+            }
+            return length == 1 ? 0 : result;
+        }
+
+        static int[] PlusOne(int[] digits){
+            int carry = 1;
+            for (int i = digits.Length-1; i>=0; i--){
+                int temp = digits[i]+carry;
+                digits[i] = temp%10;
+                carry = temp/10;
+                if(carry == 0){
+                    return digits;
+                }
+            }
+
+                return digits;
+
+                return digits.Prepend(1).ToArray();
+            
+        }
+
     }
+
 }
     
