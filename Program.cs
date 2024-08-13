@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices.Marshalling;
+using System.Security.Cryptography.X509Certificates;
 
 namespace SortedArray
 {
@@ -20,14 +21,23 @@ namespace SortedArray
             // System.Console.WriteLine(SingleNumber2(nums));
 
             // int[] nums = {1,1,2,5,4,3,2,1,4};
-            int[] nums = {2,3,1,1,4};
-            int[] y = {7,0,9,6,9,6,1,7,9,0,1,2,9,0,3};
-            // System.Console.WriteLine(Jump(y));
-            // System.Console.WriteLine(Jump(y));
-            int[] w = {9,9,9,9};
-            foreach(int i in PlusOne(w)){
-                System.Console.WriteLine(i);
-            }
+            // int[] nums = {2,3,1,1,4};
+            // int[] y = {7,0,9,6,9,6,1,7,9,0,1,2,9,0,3};
+            // // System.Console.WriteLine(Jump(y));
+            // // System.Console.WriteLine(Jump(y));
+            // int[] w = {9,9,9,9};
+            // foreach(int i in PlusOne(w)){
+            //     System.Console.WriteLine(i);
+            // }
+
+            // System.Console.WriteLine(CountDigitOne(5));
+            // System.Console.WriteLine(ClimbStairs(1));
+            // System.Console.WriteLine(MySqrt(10));
+            // System.Console.WriteLine(MySqrt(11));
+            // System.Console.WriteLine(MySqrt(16));
+            // System.Console.WriteLine(MySqrt(18));
+            // System.Console.WriteLine(MySqrt(100));
+            System.Console.WriteLine(MySqrt(2146468900));
 
 
         }
@@ -195,13 +205,74 @@ namespace SortedArray
                     return digits;
                 }
             }
-
-                return digits;
-
                 return digits.Prepend(1).ToArray();
             
         }
 
+        static int CountDigitOne(int n) {
+            // build up from 0 []
+            int power; // rounded down
+            int temp;
+            int tens;
+            int result = 0;
+            while (n>0){
+                power = (int)Math.Log10(n);
+                tens = (int)Math.Pow(10,power);
+                
+                int scale = n / tens;
+                if (scale>1){
+                    result+= tens;
+                }// add in the else statement
+                else{
+                    result += n - tens + 1;
+                }
+
+                temp = power * (tens / 10);
+                result += temp * scale;
+                n %= tens;
+            }
+            return result;
+        }
+
+        static int ClimbStairs(int n){
+            // List<int> store = new List<int>{1,2};
+            // for (int i = 2; i<n;i++){
+            //     store.Add(store[i-1]+store[i-2]);
+            // }
+            // return store[n-1];
+
+            int[] store = new int[n+1];
+            store[0] = 1;
+            store[1] = 2;
+            for (int i = 2; i<n;i++){
+                store[i] = store[i-1]+store[i-2];
+            }
+            return store[n-1];
+        }
+
+        static int MySqrt(int x) {
+            int lower = 0;
+            int upper = 46340;
+            int result;
+            if (x >= 2147395600){
+                return 46340;
+            }
+            while (true){
+                result =  (upper+lower)/2;
+                if(result*result < x){
+                    if ((result+1)*(result+1) > x){
+                        return result;
+                    }
+                    lower = result+1;
+                }
+                else if (result*result>x){
+                    upper = result-1;
+                }
+                else{
+                    return result;
+                }
+            }
+        }
     }
 
 }
