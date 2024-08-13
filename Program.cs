@@ -24,8 +24,14 @@ namespace SortedArray
             int[] y = {7,0,9,6,9,6,1,7,9,0,1,2,9,0,3};
             // System.Console.WriteLine(Jump(y));
             // System.Console.WriteLine(Jump(y));
-            int[] w = {9,9,9,9};
-            foreach(int i in PlusOne(w)){
+            // int[] w = {9,9,9,9};
+            // foreach(int i in PlusOne(w)){
+            //     System.Console.WriteLine(i);
+            // }
+
+            TreeNode a = new TreeNode(1);
+            IList<int> something = PreorderTraversal(a);
+            foreach(int i in something){
                 System.Console.WriteLine(i);
             }
 
@@ -195,12 +201,44 @@ namespace SortedArray
                     return digits;
                 }
             }
-
-                return digits;
-
                 return digits.Prepend(1).ToArray();
             
         }
+
+        public class TreeNode {
+            public int val;
+            public TreeNode left;
+            public TreeNode right;
+            public TreeNode(int val=0, TreeNode left=null, TreeNode right=null) {
+                this.val = val;
+                this.left = left;
+                this.right = right;
+            }
+        }
+
+        static IList<int> PreorderTraversal(TreeNode root) {
+            
+            List<int> result = new List<int>();
+            List<TreeNode> branch = new List<TreeNode>();
+            while(true){
+                result.Add(root.val);
+                if (root.right == null && root.left == null && branch.Count == 0){
+                    return result;
+                }
+                if (root.right != null){
+                    branch.Add(root.right);
+                }
+                if (root.left != null){
+                    root = root.left;
+                }
+                else{
+                    root = branch.Last();
+                    branch.RemoveAt(branch.Count-1);
+                }
+            }
+        }
+   
+        
 
     }
 
