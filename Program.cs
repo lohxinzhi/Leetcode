@@ -1,5 +1,7 @@
 using System;
 using System.ComponentModel;
+using System.Data;
+using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices.Marshalling;
 using System.Security.Cryptography.X509Certificates;
@@ -31,10 +33,27 @@ namespace SortedArray
             // }
 
             // TreeNode a = new TreeNode(1);
-            // IList<int> something = PreorderTraversal(a);
+            // TreeNode b = new TreeNode(2);
+            // TreeNode c = new TreeNode(3,a,b);
+            // TreeNode e = new TreeNode(4);
+            // TreeNode d = new TreeNode(5);
+            // TreeNode f = new TreeNode(6,e,d);
+            // TreeNode g = new TreeNode(7,c,f);
+            
+            // TreeNode d = new TreeNode(4);
+            // TreeNode a = new TreeNode(1);
+            // TreeNode b = new TreeNode(2,a,d);
+            // TreeNode c = new TreeNode(3,null,b);
+
+            // // TreeNode h = new TreeNode(8);
+
+
+            // // IList<int> something = PreorderTraversal(g);
+            // IList<int> something = PostorderTraversal(c);
             // foreach(int i in something){
             //     System.Console.WriteLine(i);
             // }
+
             // System.Console.WriteLine(CountDigitOne(5));
             // System.Console.WriteLine(ClimbStairs(1));
             // System.Console.WriteLine(MySqrt(10));
@@ -43,9 +62,11 @@ namespace SortedArray
             // System.Console.WriteLine(MySqrt(18));
             // System.Console.WriteLine(MySqrt(100));
             // System.Console.WriteLine(MySqrt(2146468900));
-            System.Console.WriteLine(Math.Round(1.2345, 2));
+            // System.Console.WriteLine(MaxPoints([[7,3],[19,19],[-16,3],[13,17],[-18,1],[-18,-17],[13,-3],[3,7],[-11,12],[7,19],[19,-12],[20,-18],[-16,-15],[-10,-15],[-16,-18],[-14,-1],[18,10],[-13,8],[7,-5],[-4,-9],[-11,2],[-9,-9],[-5,-16],[10,14],[-3,4],[1,-20],[2,16],[0,14],[-14,5],[15,-11],[3,11],[11,-10],[-1,-7],[16,7],[1,-11],[-8,-3],[1,-6],[19,7],[3,6],[-1,-2],[7,-3],[-6,-8],[7,1],[-15,12],[-17,9],[19,-9],[1,0],[9,-10],[6,20],[-12,-4],[-16,-17],[14,3],[0,-1],[-18,9],[-15,15],[-3,-15],[-5,20],[15,-14],[9,-17],[10,-14],[-7,-11],[14,9],[1,-1],[15,12],[-5,-1],[-17,-5],[15,-2],[-12,11],[19,-18],[8,7],[-5,-3],[-17,-1],[-18,13],[15,-3],[4,18],[-14,-15],[15,8],[-18,-12],[-15,19],[-9,16],[-9,14],[-12,-14],[-2,-20],[-3,-13],[10,-7],[-2,-10],[9,10],[-1,7],[-17,-6],[-15,20],[5,-17],[6,-6],[-11,-8]]));
+            // System.Console.WriteLine(GrayCode(4));
 
-
+            // System.Console.WriteLine(Candy([29,51,87,87,72,12]));
+            System.Console.WriteLine(Candy([1,6,10,8,7,3,2]));
         }
         
         static int Reverse(int x){
@@ -219,7 +240,7 @@ namespace SortedArray
             public int val;
             public TreeNode left;
             public TreeNode right;
-            public TreeNode(int val=0, TreeNode left=null, TreeNode right=null) {
+            public TreeNode(int val=0, TreeNode left=null, TreeNode right =null) {
                 this.val = val;
                 this.left = left;
                 this.right = right;
@@ -230,6 +251,10 @@ namespace SortedArray
             
             List<int> result = new List<int>();
             List<TreeNode> branch = new List<TreeNode>();
+            if (root == null){
+                return result;
+            }
+            
             while(true){
                 result.Add(root.val);
                 if (root.right == null && root.left == null && branch.Count == 0){
@@ -247,9 +272,47 @@ namespace SortedArray
                 }
             }
         }
-   
-        
 
+        static IList<int> PostorderTraversal(TreeNode root){
+                var result = new List<int>{};
+                var branch = new List<TreeNode>{root};
+                var branchUp = new List<TreeNode>{root};
+                if (root == null){
+                    return result;
+                }
+                while(branch.Count > 0){                
+                    if (root.left == null && root.right == null){
+                        result.Add(root.val);
+                        if (root == branchUp.Last()){
+                            branchUp.RemoveAt(branchUp.Count-1);
+                        }
+                        branch.RemoveAt(branch.Count-1);  
+                        root = branch.Count <= 0 ? root : branch.Last();
+                        while(branchUp.Count > 0 ? root == branchUp.Last(): false){
+                            result.Add(root.val);
+                            branchUp.RemoveAt(branchUp.Count-1);                        
+                            branch.RemoveAt(branch.Count-1); 
+                            root = branch.Count <= 0 ? root : branch.Last();
+                        } 
+                        branchUp.Add(root);
+                        continue; 
+                    }
+                    if (root.right != null){
+                        branch.Add(root.right);
+                        if (root.left == null){
+                            branchUp.Add(root.right);
+                            root = root.right;
+                            continue;
+                        }
+                    }
+                    if (root.left != null){
+                        branch.Add(root.left);
+                        branchUp.Add(root.left);
+                        root = root.left;
+                    }
+                }
+                return result;
+        }
         static int CountDigitOne(int n) {
             // build up from 0 []
             int power; // rounded down
@@ -315,19 +378,180 @@ namespace SortedArray
             }
         }
 
-        static int MaxPoints(int[][] points){
-            Dictionary<float, Dictionary<float,HashSet<int>>> Lines = new Dictionary<float, Dictionary<float, HashSet<int>>>{}; // Lines[gradient][y_intercept]
+        public class Line{
+            public int Count;
+            public HashSet<int> Points;
+
+            public Line(){
+                Count = 0;
+                Points = new HashSet<int>();
+            }        
+        }
+
+        static int MaxPoints1(int[][] points){
+            Dictionary<float, Dictionary<float,Line>> Lines = new Dictionary<float, Dictionary<float, Line>>{}; // Lines[gradient][y_intercept]
             int length = points.Length;
+            int max_count = 1;
             for (int i = 0; i < length; i++){
                 for (int j = i+1;  j < length; j++){
                     float grad = (float)Math.Round((float)(points[i][1]-points[j][1]) / (float)(points[i][0]-points[j][0]),4);
-                    float y = (float)Math.Round((float)points[i][1] - grad * (float)points[i][0]);
-                    Lines[grad][y].Add(i);
-                    Lines[grad][y].Add(j);
+                    float y = float.IsInfinity(grad) ? (float)points[i][0] : (float)Math.Round((float)points[i][1] - grad * (float)points[i][0],4);
+                    if(!Lines.ContainsKey(grad)){
+                        Lines.Add(grad, new Dictionary<float, Line>{});
+                    }
+                    if(!Lines[grad].ContainsKey(y)){
+                        Lines[grad].Add(y, new Line());
+                    }
+                    Lines[grad][y].Count += Lines[grad][y].Points.Add(i) ? 1 : 0 ;
+                    Lines[grad][y].Count += Lines[grad][y].Points.Add(j) ? 1 : 0 ;
+
+                    max_count = Lines[grad][y].Count > max_count ? Lines[grad][y].Count : max_count; 
                 }
             }
-            return 1;
+            return max_count;
         }
+
+        static int MaxPoints(int[][] points){
+            int length = points.Length;
+            int max_count = 1;
+            for (int i = 0; i < length; i++){
+                var max_base_length = new Dictionary<float,int>{};
+                for (int j = i+1;  j < length; j++){
+                    float grad = (float)Math.Round((float)(points[i][1]-points[j][1]) / (float)(points[i][0]-points[j][0]),4);
+                    // float y = float.IsInfinity(grad) ? (float)points[i][0] : (float)Math.Round((float)points[i][1] - grad * (float)points[i][0],4);
+                    if (!max_base_length.ContainsKey(grad)){
+                        max_base_length.Add(grad, 1);
+                    }
+                    max_base_length[grad]+=1;
+                    max_count = Math.Max(max_count, max_base_length[grad]);
+                    
+                }
+            }
+            return max_count;
+        }
+
+        static int FindMin(int[] nums){
+            int lower = 0;
+            int upper = nums.Length-1;
+            while (true){
+                int middle = (lower+upper) / 2;
+                if (nums[middle] < nums[upper]){
+                    upper = middle;
+                }
+                else if (nums[middle] > nums[upper]) {
+                    lower = middle+1;
+                }
+                if (upper == lower){
+                    return nums[upper];
+                }
+            }
+        }
+
+        static int FindMin2(int[] nums){
+            int lower = 0;
+            int upper = nums.Length-1;
+            while (true){
+                if (nums[upper] > nums[lower] || upper == lower){
+                    return nums[lower];
+                }
+                int middle = (lower+upper) / 2;
+                if (nums[middle] < nums[upper]){
+                    upper = middle;
+                }
+                else if (nums[middle] > nums[upper]) {
+                    lower = middle+1;
+                }
+                else{
+                    if (nums[middle] > nums [lower]){
+                        lower = middle+1;
+                    }
+                    else if(nums[middle] < nums [lower]) {
+                        upper = middle;
+                    }
+                    else{
+                        while(nums[lower] == nums[upper]){
+                            lower++;
+                            upper--;
+                            if (upper <= lower){
+                                return nums[upper];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        static IList<int> GrayCode(int n) {
+            if (n == 1){
+                return [0,1];
+            }
+            var result = GrayCode(n-1);
+            int length = result.Count;
+            for (int i = length-1; i>=0; i--){
+                result.Add(result[i] + (2<<(n-2)));
+            }
+            return result;
+        }
+
+        static int Candy(int[] ratings){
+            int min = 0;
+            int result = 0;
+            int[] values = new int[ratings.Length]; 
+            int temp = 0;
+            int stop = 0;
+            for(int i=1; i<ratings.Length; i++){
+                if (ratings[i] > ratings[i-1]){
+                    temp+=1;
+                }
+                else if (ratings[i] < ratings[i-1]){
+                    temp-=1;
+                    // TODO: split and evaluate
+                }
+                else{ // equal
+                    if (i+1>=ratings.Length){
+                        temp = 0;
+                    }
+                    else{
+                            values[i] = min;
+                            temp = 0;
+                            for (int j = stop; j<i; j++){
+                                values[j]+=1-min;
+                            }
+                            result += (1-min) * (i-stop);
+                            if(ratings[stop]<=ratings[stop+1]){
+                                result+=min;
+                            }
+                            if(ratings[i]<ratings[i-1]){
+                                result+= min-temp;
+                            }
+                            min = 0;
+                            stop = i;
+                            continue;
+                            
+                        
+                    }
+                }
+
+                min = Math.Min(min, temp);
+                result+=temp;
+                values[i] = temp;
+            }
+            for (int i=stop;i<ratings.Length;i++){
+                values[i]+=1-min;
+            }
+
+            result += (1-min) * (ratings.Length-stop);
+
+            if(ratings[stop]<=ratings[stop+1]){
+                result+=min;
+            }
+            if(ratings[ratings.Length-1] < ratings[ratings.Length-2]){
+                result+= min-temp;
+            }
+            return result;
+        }
+
+
     }
 
 }
