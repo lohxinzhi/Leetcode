@@ -10,6 +10,7 @@
 executables/
 bin/
 obj/
+*.sln
 
 # Ignore log files and temp files
 *.log
