@@ -46,7 +46,7 @@ namespace SortedArray
             TreeNode h = new TreeNode(8,c,f);
             TreeNode i = new TreeNode(5,g,h);
 
-            System.Console.WriteLine(HasPathSum(i,18));
+            // System.Console.WriteLine(HasPathSum(i,18));
             
             // TreeNode d = new TreeNode(4);
             // TreeNode a = new TreeNode(1);
@@ -92,7 +92,26 @@ namespace SortedArray
             // foreach(var i in xinzhi){
             //     System.Console.WriteLine(i.Key);
             // }
+
+        //     var triangle = Generate(10);
+
+
+        //     foreach(var x in triangle){
+        //         foreach(var y in x){
+        //             System.Console.Write($"  {y} ");
+        //         }
+        //         System.Console.WriteLine();
+        //     }
+
+        //     var row = GetRow(9);
+        //     foreach(var x in row){
+        //         System.Console.Write($"{x} ,");
+        //     }
+        //     System.Console.WriteLine();
+        System.Console.WriteLine(AddBinary("1010", "1011"));
+
         }
+
         
         static int Reverse(int x){
             int result = 0;
@@ -793,6 +812,117 @@ namespace SortedArray
                     }
                 }
             }
+        }
+
+        static IList<IList<int>> Generate(int numRows){ //Pascal Triangle
+
+            // [1] 0 = 0
+            // [1]  [1]  1 = 0
+            // [1]  [2]  [1] 2  = 1
+            // [1]  [3]  [3]  [1] 3 = 1
+            // [1]  [4]  [6]  [4]  [1]  4
+            // [1]  [5]  [10] [10] [5]  [1] 5
+
+            var result = new List<IList<int>>(numRows);
+            for(int i=0; i<numRows; i++){
+                result.Add(new List<int>(i+1));
+                result[i].Add(1);
+                for(int j=1; j<= i/2; j++){
+                    result[i].Add(result[i-1][j] + result[i-1][j-1]);
+                }
+                if(i%2 == 1){
+                    for(int j = i/2; j >= 0; j--){
+                        result[i].Add(result[i][j]);
+                    }
+                }
+                else{
+                    for(int j = i/2-1; j>=0; j--){
+                        result[i].Add(result[i][j]);
+                    }
+                }
+            }
+            return result;
+        }
+    
+        static IList<int> GetRow(int rowIndex){
+            var result = new List<int>(rowIndex+1);
+            result.Add(1);
+            for (int i = 1; i< rowIndex+1; i++){
+                if (i%2 == 0){
+                    result.Add(result[i/2-1]*2);
+                    int temp1 = 1;
+                    int temp2 = 1;
+                    for(int j = 1; j<=i/2-1; j++){
+                        temp1 = result[j];
+                        result[j] = result[j] + temp2;
+                        temp2 = temp1;
+                    }
+                }
+                else{
+                    int temp1 = 1;
+                    int temp2 = 1;
+                    for(int j = 1; j<=i/2; j++){
+                        temp1 = result[j];
+                        result[j] = result[j] + temp2;
+                        temp2 = temp1;
+                    } 
+                }
+
+            }
+            for(int i = result.Count-(rowIndex%2 == 1 ? 1 : 2); i>=0; i--){
+                result.Add(result[i]);
+            }
+            return result;
+        }
+
+        static string AddBinary(string a, string b){
+            int l1 = a.Length;
+            int l2 = b.Length;
+            bool carry = false;
+            string result = "";
+            for (int i = 0; i<Math.Min(l1,l2); i++){
+                if((a[l1-1-i] == b[l2-1-i] && !carry) || a[l1-1-i] != b[l2-1-i] && carry){
+                    result = '0' + result;
+                }
+                else{
+                    result = '1' + result;
+                }
+                if(a[l1-1-i]+b[l2-1-i]+(carry?1:0) - 0x60 >= 2){
+                    carry = true;
+                }
+                else{
+                    carry = false;
+                }
+                
+            }
+            if (l1!=l2){
+                for(int i = Math.Min(l1,l2); i<Math.Max(l1,l2); i++){
+                    if((l1>l2 ? a[l1-1-i]:b[l2-1-i]) == '0'){
+                        result= (carry ? '1':'0' ) + result;
+                    }
+                    else{
+                        if(carry){
+                            result = '0' + result;
+
+                        }
+                        else{
+                            result = '1' + result;
+                            carry = false;
+                        }
+                    }
+                }      
+            }
+            if (carry){
+                if (result[0]=='0'){
+                    result.Remove(0,1);
+                }
+                else{
+                    result.Remove(0,1);
+                    result = '0'+ result;
+                }
+                result = '1' + result; 
+            }
+            return result;
         }
 
 
