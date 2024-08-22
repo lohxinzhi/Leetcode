@@ -1,6 +1,8 @@
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices.Marshalling;
@@ -36,15 +38,15 @@ namespace SortedArray
 
 
 
-            TreeNode a = new TreeNode(7);
-            TreeNode b = new TreeNode(2);
-            TreeNode c = new TreeNode(13);
-            TreeNode d = new TreeNode(1);
-            TreeNode e = new TreeNode(11,a,b);
-            TreeNode f = new TreeNode(4,null,d);
-            TreeNode g = new TreeNode(4,e);
-            TreeNode h = new TreeNode(8,c,f);
-            TreeNode i = new TreeNode(5,g,h);
+            // TreeNode a = new TreeNode(7);
+            // TreeNode b = new TreeNode(2);
+            // TreeNode c = new TreeNode(13);
+            // TreeNode d = new TreeNode(1);
+            // TreeNode e = new TreeNode(11,a,b);
+            // TreeNode f = new TreeNode(4,null,d);
+            // TreeNode g = new TreeNode(4,e);
+            // TreeNode h = new TreeNode(8,c,f);
+            // TreeNode i = new TreeNode(5,g,h);
 
             // System.Console.WriteLine(HasPathSum(i,18));
             
@@ -108,8 +110,58 @@ namespace SortedArray
         //         System.Console.Write($"{x} ,");
         //     }
         //     System.Console.WriteLine();
-        System.Console.WriteLine(AddBinary("1010", "1011"));
+        // System.Console.WriteLine(AddBinary("1010", "1011"));
+        // System.Console.WriteLine(ConvertZigZag("PAYPALISHIRING",3));
+        // System.Console.WriteLine(UniquePathsWithObstacles([[0,0,0],[0,1,0],[0,0,0]]));
 
+        // System.Console.WriteLine(MinPathSum([[1,3,1],[1,5,1],[4,2,1]]));
+
+        // System.Console.WriteLine(MaximalRectangle([['1','0','1','0','0'],['1','0','1','1','1'],['1','1','1','1','1'],['1','0','0','1','0']]));
+
+        // System.Console.WriteLine(TitleToNumber("AB"));
+        // System.Console.WriteLine(Divide(2147483647,-1));
+
+        // Rotate([[1,2,3],[4,5,6],[7,8,9]]);
+        // SortColors([2,0,2,1,1,0]);
+        // System.Console.WriteLine(Combine(4,3));
+        // System.Console.WriteLine(Rob([1,2,3,1]));
+        // System.Console.WriteLine(CoinChange([2147483647],2));
+        // var a = new ListNode(1);
+        // var b = new ListNode(2);
+        // var c = new ListNode(3);
+        // var d = new ListNode(4);
+        // var e = new ListNode(5);
+        // var f = new ListNode(6);
+        // var g = new ListNode(7);
+        // var h = new ListNode(8);
+        // a.next = b;
+        // b.next = c;
+        // c.next = d;
+        // d.next = e;
+        // e.next = f;
+        // f.next = g;
+        // g.next = h;
+
+
+        // var x = OddEvenList(a);
+        // while(x!=null){
+        //     System.Console.WriteLine(x.val);
+        //     x = x.next;
+        // }
+
+        // System.Console.WriteLine(GuessNumber(2126753390,1702766719));
+
+        System.Console.WriteLine(MaxProfit2([7,1,5,3,6,4]));
+
+        }
+
+        public class ListNode{
+            public int val;
+            public ListNode next;
+            public ListNode(int x){
+                val = x;
+                next = null;
+            }
         }
 
         
@@ -923,6 +975,463 @@ namespace SortedArray
                 result = '1' + result; 
             }
             return result;
+        }
+
+        static string ConvertZigZag(string s, int numRows) {
+
+            if(numRows == 1){
+                return s;
+            }
+
+            StringBuilder sb =  new StringBuilder();
+            int length = s.Length;
+            int index;
+            for(int i = 0; i<=numRows;  i++){
+                for (int j = 0; j<(int) Math.Ceiling((double)length/((numRows-1)*2)); j++){
+                    if (i==0){
+                        index = j * (numRows-1) * 2;
+                        if(index < length){
+                            sb.Append(s[index]);
+                        }
+                    }            
+                    else{
+                        index = j * (numRows-1) * 2 - i;
+                        if(index < length && index  >= 0){
+                            sb.Append(s[index]);
+                        }
+                        index = j * (numRows-1) * 2 + i;
+                        if(index < length && i < numRows-1){
+                            sb.Append(s[index]);                    
+                        }
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+
+        static int UniquePaths(int m, int n) {
+            int[,] pathCount = new int[m,n];
+            
+            for(int i = 0; i<m; i++){
+                for (int j = 0; j<n; j++){
+                    if(i*j == 0){
+                        pathCount[i,j] = 1;
+                    }
+                    else{
+                        pathCount[i,j] = pathCount[i-1,j] + pathCount[i, j-1];
+                    }
+                }    
+            }
+            return pathCount[m-1,n-1];
+        }
+
+        static int UniquePathsWithObstacles(int[][] obstacleGrid){
+            int[] size = {obstacleGrid.Length, obstacleGrid[0].Length};
+            int[,] pathCount = new int[size[0],size[1]] ;
+            pathCount[0,0] = obstacleGrid[0][0] == 1 ? 0:1;
+            for(int i = 0; i < size[0]; i++){
+                for(int j = 0; j < size[1]; j++){
+                    if (obstacleGrid[i][j] == 1){
+                        pathCount[i,j] = 0;
+                    }
+                    else if(i==0 && j==0){
+                        pathCount[0,0] = 1;
+                    }
+                    
+                    else{
+                        pathCount[i,j] = (i == 0 ? 0: pathCount[i-1,j]) +(j==0? 0 : pathCount[i,j-1]);
+                    }
+                }
+            }
+            return pathCount[size[0]-1,size[1]-1];
+        }
+
+        static int MinPathSum(int[][] grid){
+            int[] size = {grid.Length, grid[0].Length};
+            int[,] costMap = new int[size[0], size[1]];
+            for (int i = 0; i < size[0]; i++){
+                for (int j = 0; j < size[1]; j++){
+                    costMap[i,j] = grid[i][j];
+                    if (i!=0 || j !=0){
+                        costMap[i,j] += Math.Min((i==0? int.MaxValue: costMap[i-1,j]), (j==0? int.MaxValue: costMap[i,j-1]));
+                    }
+                }
+            }
+            return costMap[size[0]-1,size[1]-1];
+        }
+
+        static int MinDistance(string word1, string word2){
+            int[,] table = new int[word1.Length+1, word2.Length+1];
+            for(int i=0; i<word1.Length+1; i++){
+                for(int j=0; j<word2.Length+1; j++){
+                    if(i*j == 0){
+                        table[i,j] =i+j;
+                    }
+                    else if(word2[j-1] == word1[i-1]){
+                        table[i,j] = table[i-1,j-1];
+                    }
+                    else{
+                        table[i,j] = 1 + Math.Min(table[i-1,j-1], Math.Min(table[i,j-1], table[i-1,j]));
+                    }
+                }
+            }
+            return table[word1.Length, word2.Length];
+        }
+
+        static int MaximalRectangle(char[][] matrix){
+                int max_area = 0;
+                int rows = matrix.Length;
+                int cols = matrix[0].Length;
+                int[,] dp = new int[rows,cols];
+
+                for(int j = 0; j<cols; j++ ){
+                    dp[0,j] = matrix[0][j] == '1'? 1:0; 
+                }
+                for(int i = 1; i< rows; i++){
+                    for (int j = 0; j<cols; j++){
+                        if (matrix[i][j] == '1'){
+                            dp[i,j] = 1 + dp[i-1,j];
+                        }
+                        else{
+                            dp[i,j] = 0;
+                        }
+                    }
+                }
+
+                for(int i = 0; i< rows; i++){
+                    for(int j = 0; j<cols; j++){
+                        int min_height = dp[i,j];
+                        for (int k = j; k>=0; k--){
+                            if (dp[i,k] == 0){
+                                break;
+                            }
+                            min_height = Math.Min(min_height, dp[i,k]);
+                            max_area = Math.Max(max_area, min_height * (j-k+1));
+                        }
+                    }
+                }
+                return max_area;
+        }
+
+        static int MaximalRectangle1(char[][] matrix){
+            int result = 0;
+            for (int i = 0; i<matrix.Length; i++){
+                for(int j = 0; j<matrix[0].Length; j++ ){
+                    if (matrix[i][j] == '1'){
+                        int[] end = {i,matrix[0].Length-1};
+                        for(int x = i; x<matrix.Length; x++){
+                            if(matrix[x][j] == '0'){
+                                // do smt
+                                break;
+                            }
+                            int row_end = end[1];
+                            for(int y = j; y<=end[1]; y++){
+                                if(matrix[x][y] == '0'){
+                                    row_end = y-1;
+                                    break;
+                                }
+                            }
+                            end[0] = x;
+                            end[1] = Math.Min(row_end, end[1]);
+                            result = Math.Max(result, (end[0]-i+1) * (end[1]-j+1));
+                        }
+                    } 
+                }
+            }
+            return result;
+        }
+
+        static int TitleToNumber(string columnTitle){
+            int result = 0;
+            int length = columnTitle.Length;
+            for(int i = 0; i<length; i++){
+                result+= (int)Math.Pow(26, i) * columnTitle[length-1-i]-'A'+1;
+            }
+            return result;
+            } 
+
+        static int Divide(int dividend, int divisor){
+            int result = 0;
+            int remaining = dividend>=0? -dividend: dividend;
+            int temp=divisor>0 ? divisor: -divisor;
+            int i=0;
+            while(remaining<=-temp){
+                while (remaining<-temp<<1 && temp<<1 > 0){
+                    temp = temp<<1;
+                    i++;
+                }
+                result -= 1<<i;
+
+                remaining = remaining+temp;
+                temp = divisor>0 ? divisor: -divisor;
+                i=0;
+            }
+            if (result== int.MinValue){
+                return dividend>=0 ^ divisor>0 ?  result :int.MaxValue;
+            }
+            return dividend>=0 ^ divisor>0 ? result: -result;
+        }
+
+        static void Rotate(int[][] matrix){
+            for(int i = 0; i<matrix.Length; i++){
+                for(int j = i+1; j<matrix[i].Length; j++){
+                    matrix[i][j] = matrix[i][j] ^ matrix[j][i];
+                    matrix[j][i] = matrix[i][j] ^ matrix[j][i];
+                    matrix[i][j] = matrix[i][j] ^ matrix[j][i];
+                }
+            }
+            int size = matrix.Length;
+            for(int j = 0; j<size/2; j++){
+                for (int i = 0; i<size; i++){
+                    matrix[i][j] = matrix[i][j] ^ matrix [i][size-1-j];
+                    matrix[i][size-1-j] = matrix[i][j] ^ matrix [i][size-1-j];
+                    matrix[i][j] = matrix[i][j] ^ matrix [i][size-1-j];
+                }
+            }
+            
+        }
+
+        static void SortColors(int[] nums){
+            int pivot = 1;
+            int j=  -1;
+            for(int i = 0; i< nums.Length; i++){
+                if (nums[i] < pivot){
+                    j++;
+                    int temp = nums[i];
+                    nums[i] = nums[j];
+                    nums[j] = temp;
+                }
+            }
+            pivot = 2;
+            for(int i = j+1; i<nums.Length; i++){
+                if (nums[i] < pivot){
+                    j++;
+                    int temp = nums[i];
+                    nums[i] = nums[j];
+                    nums[j] = temp;
+                }
+            }
+        }
+
+        static IList<IList<int>> Combine(int n, int k){
+            float temp=1;            
+            int[] indexes = new int[k];
+            for(int i = 0; i<k; i++){
+                temp*=(float)(n-i)/(float)(i+1);
+                indexes[i] = i;
+
+            }
+            int length = (int)Math.Round(temp); // length of final list
+            
+            var result = new List<IList<int>>(length);
+            int j = 0;
+            while(j<length){
+
+                // add numbers to result list
+                result.Add(new List<int>(k));
+                for(int l = 0; l<k; l++){
+                    result[j].Add(indexes[l]+1);
+                }
+
+                
+                indexes[k-1]++;  // increment the index to get the next set of numbers
+                if (indexes[k-1] >= n){ // if last number overflow
+                    for(int i = 1; i<k; i++){ // loop through index from the back
+                        indexes[k-1-i]++; //increment previous index
+                        if (indexes[k-1-i] < n-i){ // if previous index overflow, reset current number to end 
+                            for(int x = k-i; x<k; x++){
+                                indexes[x] = indexes[x-1]+1;
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                j++;
+            }
+            return result;
+            
+
+
+        }
+
+        static bool HasCycle(ListNode head){
+            var hash = new HashSet<ListNode>{};
+            while(head != null){
+                if(!hash.Add(head)){
+                    return true;
+                }
+                head = head.next;
+            }
+            return false;
+        }
+
+        static ListNode DetectCycle(ListNode head) {
+            var fast = head;
+            var slow = head;
+            while(fast !=null && fast.next!=null){
+                fast = fast.next.next;
+                slow = slow.next;
+                if(fast==slow){
+                    while (head!=slow){
+                        head = head.next;
+                        slow = slow.next;
+                    }
+                    return head;
+                }
+            }
+            return null;
+        }
+        static int Rob(int[] nums){
+            if (nums.Length == 1){
+                return nums[0];
+            }
+            if (nums.Length == 2){
+                return Math.Max(nums[0], nums[1]);
+            }
+            List<int> dp =new List<int> {nums[0], Math.Max(nums[0],nums[1])};
+            for (int i = 2; i<nums.Length; i++){
+                dp.Add(Math.Max(dp[i-2]+nums[i], dp[i-1]));
+            }
+            return dp[nums.Length-1];
+        }
+
+        static int NumSquares(int n){
+            int[] dp = new int[n];
+            int square = 1;
+            List<int> squares = new List<int> {};
+            for(int i=0; i<n; i++){
+                if (i+1 == square*square){
+                    dp[i] = 1;
+                    squares.Add(square*square);
+                    square++;
+                }
+                else{
+                    int min = dp[i-1]+dp[0];
+                    for (int j = 0; j<squares.Count; j++){
+                        min = Math.Min(min, dp[squares[j]-1]+dp[i-squares[j]]);
+                    }
+                    dp[i] = min;
+                }
+            }
+            return dp.Last();
+        }
+        static int CoinChange(int[] coins, int amount){
+            if (amount == 0){
+                return 0;
+            }
+            int[] dp = new int[amount];
+            var coinSet = new HashSet<int>(coins); 
+            for (int i = 0; i<amount; i++){
+                if (coinSet.Contains(i+1)){
+                    dp[i] = 1;
+                }
+                else if(i==0){
+                    dp[i] =-1;
+                }
+                else{
+                    int min = dp[i-1] <0 || dp[0] < 0 ? -1 : dp[i-1]+dp[0];
+                    foreach(int coin in coinSet){
+                        if (coin-1>i){
+                            continue;
+                        }
+                        int temp = dp[coin-1]*dp[i-coin] <0 ? -1 : dp[coin-1]+dp[i-coin];
+                        if (min>0 && temp >0){
+                            min = Math.Min(min, temp);
+                        }
+                        else{
+                            min = Math.Max(min, temp);
+                        }
+                        
+                    } 
+                    dp[i] = min;
+                }
+            }
+            return dp.Last();
+        }
+
+        static ListNode OddEvenList(ListNode head){
+            if(head == null || head.next == null){
+                return head;
+            }
+            var tempOdd = head;
+            var tempEven = new ListNode(0);
+            var head2 = head.next;
+            while(tempOdd!=null ? tempOdd.next != null : false ){
+                tempEven.next = tempOdd.next;
+                tempOdd.next = tempOdd.next.next;
+                if (tempOdd.next == null){
+                    break;
+                }
+                tempOdd =tempOdd.next;
+                tempEven = tempEven.next; 
+            }
+
+            if (tempOdd==tempEven.next){
+                tempEven.next = null;
+                tempOdd.next = head2;
+            }
+            else{
+                tempOdd.next = head2;
+            }
+            return head;
+
+        }
+
+        static int guess(int num, int pick){
+            if (num>pick){
+                return -1;
+            }
+            else if (num<pick){
+                return 1;
+            }
+            else{
+                return 0;
+            }
+        }
+
+        static int GuessNumber(int n, int pick) {
+            int upper = n;
+            int lower = 1;
+            int middle = lower+(upper-lower)/2;
+            while(true){
+                int ans = guess(middle,pick);
+                if(ans ==-1){
+                    upper = middle-1;
+                }
+                else if (ans == 1){
+                    lower = middle+1;
+                }
+                else{
+                    return middle;
+                }
+                middle = lower+(upper-lower)/2;
+            }
+        }   
+
+        static int MaxProfit(int[] prices) {
+            int profit = 0;
+            int min = prices[0];
+            for(int i = 1; i<prices.Length; i++){
+                profit = Math.Max(profit, prices[i]-min);
+                min = Math.Min(min, prices[i]);
+            }
+            return profit;
+        }
+
+        static int MaxProfit2(int[] prices){
+            int profit = 0;
+            int min = prices[0];
+            for(int i=1; i<prices.Length-1; i++){
+                if (prices[i+1]<prices[i] && prices[i] > min){
+                    profit += prices[i] - min;
+                    min = prices[i];
+                }
+                else{
+                    min = Math.Min(min, prices[i]);
+                }
+            }
+            return profit;
         }
 
 
