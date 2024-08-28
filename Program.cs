@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices.Marshalling;
+using System.Runtime.Intrinsics.Arm;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml.XPath;
@@ -151,7 +152,23 @@ namespace SortedArray
 
         // System.Console.WriteLine(GuessNumber(2126753390,1702766719));
 
-        System.Console.WriteLine(MaxProfit2([7,1,5,3,6,4]));
+        // System.Console.WriteLine(MaxProfit2([7,1,5,3,6,4]));
+
+        // System.Console.WriteLine(NumsDecoding("101536415"));
+        // System.Console.WriteLine(CountBits(2));
+
+        // System.Console.WriteLine(SpiralOrder([[1,2,3,4],[5,6,7,8],[9,10,11,12]]));
+
+        // System.Console.WriteLine(MaximalSquare([['1','1'],['1','1']]));
+
+        // System.Console.WriteLine(UpdateMatrix([[0,1,0,1,1],[1,1,0,0,1],[0,0,0,1,0],[1,0,1,1,1],[1,0,0,0,1]]));
+
+        // System.Console.WriteLine(CalculateMinimumHP([[-2,-3,3],[-5,-10,1],[10,30,-5]]));
+
+        // System.Console.WriteLine(FindDiagonalOrder([[1,2,3],[4,5,6],[7,8,9]]));
+
+        System.Console.WriteLine(IntegerReplacement(100000000));
+
 
         }
 
@@ -1434,6 +1451,298 @@ namespace SortedArray
             return profit;
         }
 
+        static int NumsDecoding(string s){
+            int[] dp = new int[s.Length];
+            dp[0] = 1;
+
+            if (s[0] == '0'){
+                return 0;
+            }
+            if (s.Length>1){
+                switch(s[0]){
+                    case '1':{
+                        if (s[1] == '0'){
+                            dp[1] = 1;
+                        }
+                        else{
+                            dp[1] = 2;
+                        }
+                        break;
+                    }
+                    case '2':{
+                        if(s[1]>='1' && s[1]<='6'){
+                            dp[1] = 2;
+                        }
+                        else{
+                            dp[1] = 0;
+                        }
+                        break;
+                    }
+                    default:{
+                        if (s[1]=='0'){
+                            return 0;
+                        }
+                        else{
+                            dp[1]= 1 ;
+                        }
+                        break;
+                    }
+                }
+            }
+            for(int i = 2; i < s.Length; i++){
+                switch(s[i]){
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6': {
+                        if (s[i-1] == '1' || s[i-1] == '2'){
+                                dp[i] = dp[i-1] + dp[i-2];  
+                        }
+                        else{
+                            dp[i] = dp[i-1];
+                        }
+                        break;
+                    }
+                    case '7':
+                    case '8':
+                    case '9':{
+                        if (s[i-1] == '1'){
+                            dp[i] = dp[i-1] + dp[i-2];
+                        }
+                        else{
+                            dp[i] = dp[i-1];
+                        }
+                        break;
+                    }
+                    case '0':{
+                        if (s[i-1] == '1' || s[i-1] == '2'){
+                            dp[i] = dp[i-2];  
+                        }
+                        else{
+                            return 0;
+                        }
+                        break;
+                    }
+                    default:{
+                        return 0;
+                    }
+                }
+            }
+            return dp.Last();
+        }
+
+        static int[] CountBits(int n){
+            int[] dp = new int[n+1];
+            dp[0] = 0;
+            int current = 1;
+            for (int i = 1; i<=n; i++){
+                if(i==current*2){
+                    current*=2;
+                }
+                dp[i] = dp[i-current]+1;
+            }
+            return dp;
+
+        }
+
+        static IList<int> SpiralOrder(int[][] matrix){
+            int height = matrix.Length;
+            int length = matrix[0].Length;
+            int num_loop = (Math.Min(height,length)+1)/2;
+
+            var result = new List<int>(length*height);
+            int i = 0;
+            int j = 0;
+            for(int n = 0; n<num_loop; n++){
+                // goint left
+                result.Add(matrix[i][j]);
+                for (int count = 1; count<length; count++){
+                    j++;
+                    result.Add(matrix[i][j]);
+                } 
+                if(height==1){
+                    break;
+                }
+                
+                for(int count = 1; count<height; count++){
+                    i++;
+                    result.Add(matrix[i][j]);
+                    
+                }
+                if(length==1){
+                    break;
+                }
+                for (int count = 1; count<length; count++){
+                    j--;
+                    result.Add(matrix[i][j]);
+                }
+                for (int count = 2; count<height; count++){
+                    i--;
+                    result.Add(matrix[i][j]);
+                } 
+                j++;
+                length-=2;
+                height-=2;
+            }
+            return result;
+        }
+        static int MaximalSquare(char[][] matrix){
+            int[][] dp = new int[matrix.Length][];
+            dp[0] = new int[matrix[0].Length];
+            int max = 0;
+            for(int j = 0; j< matrix[0].Length; j++){
+                dp[0][j] = matrix[0][j]-'0';
+                max = matrix[0][j] == '1' ? 1 : max;
+            }
+            for (int i = 1; i< matrix.Length; i++){
+                dp[i] = new int[matrix[i].Length];
+                dp[i][0] = matrix[i][0]-'0';
+                max = matrix[i][0] == '1' ? 1 : max;
+            }
+
+            for (int i = 1; i < matrix.Length; i++ ){
+                for(int j = 1; j<matrix[i].Length; j++){
+                    if (matrix[i][j] == '1'){
+                        dp[i][j] = Math.Min(dp[i][j-1], Math.Min(dp[i-1][j], dp[i-1][j-1]))+1;
+                        max = Math.Max(max, dp[i][j]);
+                    }
+                }
+            }
+            return max*max;
+        }
+
+        static int[][] UpdateMatrix(int[][] mat){
+            int[][] result = new int[mat.Length][];
+            result[0] = new int[mat[0].Length];
+            result[0][0] = mat[0][0];
+            for (int j = 1; j<mat[0].Length; j++){
+                result[0][j] = mat[0][j] == 0 ? 0 : result[0][j-1] + 1; 
+            }
+            for (int i = 1; i < mat.Length; i++){
+                result[i] = new int[mat[i].Length];
+                result[i][0] = mat[i][0] == 0 ? 0 : result[i-1][0] + 1;
+            }
+            for (int i = 1; i< mat.Length; i++){
+                for (int j = 1; j < mat[i].Length; j++){
+                    result[i][j] = mat[i][j] == 0 ? 0 : Math.Min(result[i-1][j], result[i][j-1]) + 1; 
+                }
+            }
+
+            // update backwards
+            for (int j = mat[0].Length-2; j >= 0; j--){
+                result[mat.Length-1][j] = mat[mat.Length-1][j] == 0 ? 0 : Math.Min(result[mat.Length-1][j+1] + 1, result[mat.Length-1][j]); 
+            }
+            for (int i = mat.Length-2; i >=0 ; i--){
+                result[i][mat[0].Length-1] = mat[i][mat[0].Length-1] == 0 ? 0 : Math.Min(result[i+1][mat[0].Length-1]+1,result[i][mat[0].Length-1]);
+            }
+            for (int i = mat.Length-2 ; i>=0; i--){
+                for (int j = mat[0].Length-2; j >=0 ; j--){
+                    result[i][j] = mat[i][j] == 0 ? 0 : Math.Min(result[i][j],Math.Min(result[i+1][j], result[i][j+1]) + 1); 
+                }
+            }
+            return result;
+        }
+
+        static int CalculateMinimumHP(int[][] dungeon){
+            int rows = dungeon.Length;
+            int cols = dungeon[0].Length;
+            int[,] dp= new int[rows,cols];
+            dp[rows-1,cols-1] = dungeon[rows-1][cols-1] <0 ? -dungeon[rows-1][cols-1] + 1 : 1 ;
+            for (int i = rows-2; i>=0; i-- ){
+                dp[i, cols-1] = Math.Max(dp[i+1,cols-1] - dungeon[i][cols-1] , 1); 
+            }
+            for (int j = cols-2; j>=0; j-- ){
+                dp[rows-1,j] = Math.Max(dp[rows-1,j+1] - dungeon[rows-1][j],1);
+            }
+            for (int i = rows-2; i>=0; i--){
+                for(int j = cols-2; j>=0; j--){
+                    dp[i,j] = Math.Max(Math.Min(dp[i+1,j], dp[i,j+1])-dungeon[i][j],1);
+                }
+            }
+            return dp[0,0];
+        }
+
+        static int IslandPerimeter(int[][] grid){
+            int peri = 0;
+
+            for(int i = 0; i<grid.Length; i++){
+                for(int j = 0; j<grid[0].Length; j++){
+                    if (grid[i][j] == 1){
+                        peri += 4 - ( j<grid[0].Length-1 ? grid[i][j+1]:0)-( j>0 ?grid[i][j-1]:0)-(i<grid.Length-1?grid[i+1][j]:0)-( i>0 ?grid[i-1][j]:0);
+                    }
+                }
+            }
+            return peri;
+        }
+
+        static int[] FindDiagonalOrder(int[][] mat){
+            int rows = mat.Length;
+            int cols = mat[0].Length;
+            int[] result = new int[rows*cols];
+            int count = 0;
+            int i = 0;
+            int j = 0;
+            bool up = true; // true is up
+            while (count<rows*cols){
+                result[count] = mat[i][j];
+                count++;
+                    if (up){
+                        if (j == cols-1){
+                            if (i != rows-1){
+                                i++;
+                                up = false;
+                            }
+                            else{
+                                break;
+                            }
+                        }
+                        else if (i==0){
+                            j++;
+                            up = false;
+                        }
+                        else{
+                            i--;
+                            j++;
+                        }
+                    }
+                    else{ //down
+                        if (i==rows-1){
+                            if (j!=cols-1){
+                                j++;
+                                up = true;                            
+                            }
+                            else{
+                                break;
+                            }
+                        }
+                        else if(j == 0){
+                            i++;
+                            up = true;
+                        }
+                        else{
+                            j--;
+                            i++;
+                        }
+                    }
+            }
+            return result;
+        }
+
+        static int IntegerReplacement(int n) {
+            int[] dp  = new int[n];
+            dp[0] = 0;
+            for (int i = 1; i<n; i++){
+                if ((i+1)%2 == 0){
+                    dp[i] = dp[(i+1)/2-1] + 1;
+                }
+                else{
+                    dp[i] = Math.Min(dp[i-1], dp[(i+2)/2-1]+1)+1;
+                }
+            }
+            return dp.Last();
+        }
 
 
     }
